@@ -27,31 +27,34 @@ public class Server extends Thread {
 	
 	private File file;
 	
-	public Server() {
-        try {
-            server = new ServerSocket(TCP_PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-		executing = true;
-        file = new File( location );
-        if(file.exists()) {
-            try {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                users = (Hashtable<String, User>)ois.readObject();
-                ois.close();
-            }
-            catch( Exception e ) {
-            	e.printStackTrace();
-            }
-        }
-        else {
-            users = new Hashtable<String, User>( );
-        }
-        singleton = this;
-	}
+	private int totalConnections;
 	
+	private int numUsersConnected;
+	
+	private long tiempoPromedio;
+
+	public Server() {
+		try {
+			server = new ServerSocket(TCP_PORT);
+			executing = true;
+			file = new File( location );
+			if(file.exists()) {
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+				users = (Hashtable<String, User>)ois.readObject();
+				ois.close();
+			}
+			else {
+				users = new Hashtable<String, User>( );
+			}
+			totalConnections=0;
+			numUsersConnected=0;
+			singleton = this;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+
 	public boolean authenticateUser(String username, String password) {
 		User user = users.get(username);
 		return user==null?false:user.isUser(username, password);
@@ -81,6 +84,26 @@ public class Server extends Thread {
 		}
 	}
 	
+	public void addTotalConnections() {
+		totalConnections++;
+		System.out.println("Numero conexiones totales: " + totalConnections);
+	}
+	
+	public void addNumUsersConnected() {
+		numUsersConnected++;
+		System.out.println("Numero usuarios conectados: " + numUsersConnected);
+	}
+	
+	public void decreaseNumUsersConnected() {
+		numUsersConnected--;
+		System.out.println("Numero usuarios conectados: " + numUsersConnected);
+	}
+	
+	public void calcularPromedio(long tiempo) {
+		tiempoPromedio = tiempoPromedio==0?tiempo:(tiempoPromedio+tiempo)/2;
+		System.out.println("Tiempo promedio: " + tiempoPromedio);
+	}
+	
 	public static Server getInstance() {
 		return singleton;
 	}
@@ -101,9 +124,8 @@ public class Server extends Thread {
     	System.out.println("Stop server");
     	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     	String input = br.readLine();
-    	if(input != null && input.equals("STOP")){
+    	if(input.equals("STOP")){
     		server.stopServer();
-    		System.exit(-1);
-    	}	
+    	}
     }
 }

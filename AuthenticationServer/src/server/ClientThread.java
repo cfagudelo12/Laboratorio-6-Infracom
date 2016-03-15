@@ -16,6 +16,9 @@ public class ClientThread extends Thread{
 
     public void run() {
         try {
+        	Server.getInstance().addTotalConnections();
+        	Server.getInstance().addNumUsersConnected();
+        	long t1 = System.currentTimeMillis();
         	boolean executing = true;
             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -32,18 +35,19 @@ public class ClientThread extends Thread{
             		boolean result = Server.getInstance().authenticateUser(args[1], args[2]);
             		String answer = result ? "OK;Succesfully authenticated\nWelcome "+args[1] : "ERROR;Wrong username/password";
             		writer.println(answer);
-            		if(result) {
-            			executing = false;
-            		}
             	}
-            	else if(args[0].equals("STOP")){
+            	else if(args[0].equals("LOGOUT")){
             		executing=false;
+            		System.out.println("Logged out");
             	}
             }
             reader.close();
             writer.close();
             writer.close();
             clientSocket.close();
+            long t2 = System.currentTimeMillis();
+            Server.getInstance().decreaseNumUsersConnected();
+            Server.getInstance().calcularPromedio(t2-t1);
         } catch (IOException e) {
             e.printStackTrace();
         }
