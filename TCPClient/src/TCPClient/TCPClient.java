@@ -12,6 +12,8 @@ public class TCPClient {
     private PrintWriter writer;
     
     private BufferedReader reader;
+
+	private BufferedOutputStream out;
 	
 	private final static int PORT = 8080;
 	
@@ -53,5 +55,9 @@ public class TCPClient {
 	
 	public void logout() {
 		writer.println(LOGOUT);
+	}
+
+	public void upload(File file) {
+
 	}
 }

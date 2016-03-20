@@ -79,7 +79,17 @@ public class TCPClientGUI extends JFrame {
 	}
 	
 	public void upload() {
-		
+		JFileChooser fc = new JFileChooser( "./data" );
+		int resultado = fc.showOpenDialog( this );
+		if( resultado == JFileChooser.APPROVE_OPTION ) {
+			File file = fc.getSelectedFile( );
+			try {
+				client.upload(file);
+			}
+			catch( Exception e ) {
+				e.printStackTrace( );
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
