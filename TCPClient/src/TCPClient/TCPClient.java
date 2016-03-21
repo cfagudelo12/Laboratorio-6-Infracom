@@ -1,7 +1,12 @@
 package TCPClient;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -12,8 +17,6 @@ public class TCPClient {
     private PrintWriter writer;
     
     private BufferedReader reader;
-
-	private BufferedOutputStream out;
 	
 	private final static int PORT = 8080;
 	
@@ -23,13 +26,10 @@ public class TCPClient {
 	
 	private final static String LOGOUT = "LOGOUT";
 	
-	private boolean authenticated;
-	
 	public TCPClient(String ip) throws Exception {
 		socket = new Socket(ip, PORT);
 		writer = new PrintWriter(socket.getOutputStream(), true);
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		authenticated = false;
 	}
 	
 	public void createNewUser(String username, String password) throws Exception {
@@ -45,10 +45,7 @@ public class TCPClient {
 		writer.println(LOGIN+";"+username+";"+password);
 		String in = reader.readLine();
 		String[] args = in.split(";");
-		if(args[0].equals("OK")) {
-			authenticated = true;
-		}
-		else if(args[0].equals("ERROR")) {
+		if(args[0].equals("ERROR")) {
 			throw new Exception(args[1]);
 		}
 	}
@@ -57,7 +54,13 @@ public class TCPClient {
 		writer.println(LOGOUT);
 	}
 
-	public void upload(File file) {
-
+	public void upload(File file, String name) throws Exception {
+		writer.println("UPLOAD;"+name+";"+(int) file.length());
+		byte[] mybytearray = new byte[(int) file.length()];
+		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+		bis.read(mybytearray, 0, mybytearray.length);
+		OutputStream os = socket.getOutputStream();
+		os.write(mybytearray, 0, mybytearray.length);
+		os.flush();
 	}
 }

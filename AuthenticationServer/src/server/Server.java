@@ -55,9 +55,12 @@ public class Server extends Thread {
 		}
 	}
 
-	public boolean authenticateUser(String username, String password) {
+	public User authenticateUser(String username, String password) {
 		User user = users.get(username);
-		return user==null?false:user.isUser(username, password);
+		if(user!=null&&user.isUser(username, password)) {
+			return user;
+		}
+		return null;
 	}
 	
 	public boolean createUser(String username, String password) {

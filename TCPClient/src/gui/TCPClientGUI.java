@@ -1,16 +1,18 @@
-package gui;
+package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,7 +24,7 @@ import TCPClient.TCPClient;
 
 public class TCPClientGUI extends JFrame {
 	
-	private final static String IP = "157.253.202.39";
+	private final static String IP = "192.168.0.14";
 	
 	private TCPClient client;
 	
@@ -84,10 +86,11 @@ public class TCPClientGUI extends JFrame {
 		if( resultado == JFileChooser.APPROVE_OPTION ) {
 			File file = fc.getSelectedFile( );
 			try {
-				client.upload(file);
+				String name = JOptionPane.showInputDialog(this,"Name your file");
+				client.upload(file, name);
 			}
-			catch( Exception e ) {
-				e.printStackTrace( );
+			catch(Exception e) {
+				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
 		}
 	}

@@ -1,19 +1,31 @@
 package server;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientThread extends Thread{
 
-    private Socket clientSocket = null;
+    private Socket clientSocket;
+    
+    private User user;
 
     public ClientThread(Socket clientSocket) {
         this.clientSocket = clientSocket;
+        user=null;
     }
 
+    public void saveFile() {
+    	
+    }
+    
     public void run() {
         try {
         	Server.getInstance().addTotalConnections();
@@ -32,9 +44,26 @@ public class ClientThread extends Thread{
             		writer.println(answer);
             	}
             	else if(args[0].equals("LOGIN")) {
-            		boolean result = Server.getInstance().authenticateUser(args[1], args[2]);
-            		String answer = result ? "OK;Succesfully authenticated\nWelcome "+args[1] : "ERROR;Wrong username/password";
+            		user = Server.getInstance().authenticateUser(args[1], args[2]);
+            		String answer = user!=null ? "OK;Succesfully authenticated\nWelcome "+args[1] : "ERROR;Wrong username/password";
             		writer.println(answer);
+            	}
+            	else if(args[0].equals("UPLOAD")) {
+            		File file = new File("./data/"+args[1]+".m4a");
+            		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            		byte[] mybytearray = new byte[1024];
+            		InputStream is = clientSocket.getInputStream();
+            		FileOutputStream fos = new FileOutputStream(file);
+            		BufferedOutputStream bos = new BufferedOutputStream(fos);
+            		int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+            		do {
+                        baos.write(mybytearray);
+                        bytesRead = is.read(mybytearray);
+                        System.out.println("Reading");
+            		} while (bytesRead == 1024);
+            		System.out.println("Done");
+            		bos.write(baos.toByteArray());
+            		bos.close();
             	}
             	else if(args[0].equals("LOGOUT")){
             		executing=false;

@@ -9,6 +9,10 @@ public class User {
 		this.password=password;
 	}
 	
+	public String getUsername() {
+		return username;
+	}
+	
 	public boolean isUser(String username, String password) {
 		return username.equals(this.username)&&password.equals(this.password);
 	}
